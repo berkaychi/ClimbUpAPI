@@ -1,0 +1,6 @@
+@ClimbUpAPI_HostAddress = http://localhost:5122
+
+GET {{ClimbUpAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

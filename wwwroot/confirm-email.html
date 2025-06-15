@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-posta Onayı - ClimbUp</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#ff7846", secondary: "#4a5568" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      :where([class^="ri-"])::before {
+        content: "\f3c2";
+      }
+      body {
+        background-color: #e6f4f1;
+      }
+      .logo {
+        font-family: "Pacifico", serif;
+        color: #ff7846;
+      }
+      .status-container {
+        text-align: center;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+      }
+      .success-container {
+        background-color: #d1fae5;
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+      }
+      .error-container {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+      }
+      .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border-left-color: #ff7846; /* primary color */
+        animation: spin 1s ease infinite;
+        margin: 25px auto;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <header class="w-full bg-white shadow-sm">
+      <div class="max-w-6xl mx-auto px-4 py-3">
+        <a href="/" class="logo text-2xl">ClimbUp</a>
+      </div>
+    </header>
+
+    <main
+      class="flex-grow container mx-auto px-4 py-12 flex items-center justify-center"
+    >
+      <div class="bg-white rounded-lg shadow-sm p-8 max-w-md w-full">
+        <div id="initialMessage" class="text-center">
+          <div
+            class="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4"
+          >
+            <i class="ri-mail-check-line text-primary ri-2x"></i>
+          </div>
+          <h1 class="text-2xl font-semibold text-gray-800 mb-2">
+            E-posta Adresiniz Doğrulanıyor...
+          </h1>
+          <div id="spinner" class="spinner"></div>
+          <p class="text-gray-600">Lütfen bekleyin.</p>
+        </div>
+
+        <div
+          id="successMessage"
+          class="status-container success-container hidden"
+        >
+          <div
+            class="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-4"
+          >
+            <i class="ri-checkbox-circle-line text-green-600 ri-2x"></i>
+          </div>
+          <h2 class="text-xl font-semibold mb-2">
+            E-posta Başarıyla Onaylandı!
+          </h2>
+          <p class="mb-4">
+            Merhaba
+            <span id="userNamePlaceholder" class="font-semibold"></span>,
+            ClimbUp hesabın artık aktif. Hemen giriş yapıp zirve yolculuğuna
+            başlayabilirsin!
+          </p>
+          <a
+            href="/login"
+            class="mt-6 inline-block px-6 py-2 bg-primary text-white rounded-md hover:bg-orange-600 !rounded-button"
+            >Giriş Yap</a
+          >
+        </div>
+
+        <div id="errorMessage" class="status-container error-container hidden">
+          <div
+            class="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4"
+          >
+            <i class="ri-error-warning-line text-red-600 ri-2x"></i>
+          </div>
+          <h2 class="text-xl font-semibold mb-2">
+            E-posta Doğrulama Başarısız!
+          </h2>
+          <p id="errorMessageText" class="mb-4"></p>
+          <p class="mt-6 text-sm text-gray-500">
+            Bu sayfayı şimdi kapatabilirsiniz veya
+            <a href="/" class="text-primary hover:underline"
+              >ana sayfaya dönebilirsiniz</a
+            >.
+          </p>
+          <!-- İsteğe bağlı: Yeniden gönderme linki/butonu eklenebilir -->
+        </div>
+      </div>
+    </main>
+
+    <footer
+      class="w-full bg-white/80 backdrop-blur-sm border-t border-gray-100 py-4 px-6 mt-auto"
+    >
+      <div class="max-w-6xl mx-auto text-center">
+        <span class="text-sm text-gray-500"
+          >© 2025 ClimbUp. Tüm hakları saklıdır.</span
+        >
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const initialMessageDiv = document.getElementById("initialMessage");
+        const successMessageDiv = document.getElementById("successMessage");
+        const errorMessageDiv = document.getElementById("errorMessage");
+        const errorMessageText = document.getElementById("errorMessageText");
+        const userNamePlaceholder = document.getElementById(
+          "userNamePlaceholder"
+        );
+        const spinnerDiv = document.getElementById("spinner");
+
+        const params = new URLSearchParams(window.location.search);
+        const userId = params.get("userId");
+        const token = params.get("token");
+
+        function showSuccess(apiMessage, userName) {
+          initialMessageDiv.classList.add("hidden");
+          spinnerDiv.style.display = "none";
+          if (userNamePlaceholder && userName) {
+            userNamePlaceholder.textContent = userName;
+          } else if (userNamePlaceholder) {
+            userNamePlaceholder.textContent = "Climber";
+          }
+          // You can customize the success message further if needed using apiMessage
+          successMessageDiv.classList.remove("hidden");
+          errorMessageDiv.classList.add("hidden");
+        }
+
+        function showError(apiMessage) {
+          initialMessageDiv.classList.add("hidden");
+          spinnerDiv.style.display = "none";
+          errorMessageText.textContent =
+            apiMessage || "Bilinmeyen bir hata oluştu veya bağlantı geçersiz.";
+          errorMessageDiv.classList.remove("hidden");
+          successMessageDiv.classList.add("hidden");
+        }
+
+        if (!userId || !token) {
+          showError(
+            "Eksik bilgi: Kullanıcı ID veya token URL'de bulunamadı. Lütfen e-postanızdaki bağlantıyı kontrol edin."
+          );
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `/api/Auth/confirm-email?userId=${encodeURIComponent(
+              userId
+            )}&token=${encodeURIComponent(token)}`,
+            {
+              method: "GET", // Changed from POST to GET as per AuthController
+              headers: {
+                Accept: "application/json",
+              },
+            }
+          );
+
+          const result = await response.json();
+
+          if (response.ok && result.message) {
+            // Assuming 'message' is always present on success
+            showSuccess(result.message, result.userName);
+          } else {
+            let errorMsg = "E-posta onayı başarısız oldu.";
+            if (result && result.message) {
+              errorMsg = result.message;
+            } else if (
+              result &&
+              result.errors &&
+              result.errors.length > 0 &&
+              result.errors[0].description
+            ) {
+              errorMsg = result.errors[0].description;
+            } else if (response.statusText) {
+              errorMsg = `Hata: ${response.statusText}`;
+            }
+            showError(errorMsg);
+          }
+        } catch (error) {
+          console.error("Confirmation error:", error);
+          showError(
+            "E-posta doğrulaması sırasında bir ağ hatası veya beklenmedik bir sorun oluştu."
+          );
+        }
+      });
+    </script>
+  </body>
+</html>

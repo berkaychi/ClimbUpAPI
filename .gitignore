@@ -1,0 +1,12 @@
+bin/
+obj/
+
+appsettings.production.json
+appsettings.development.json
+.vscode/
+publish/
+plan/
+filtered.log
+docs/
+API Endpoints Doc/
+badge_png/

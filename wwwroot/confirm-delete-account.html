@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ClimbUp - Hesap Silme Onayı</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#ff7846", secondary: "#4a5568" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      :where([class^="ri-"])::before {
+        content: "\f3c2";
+      } /* Bu satır remixicon'un doğru çalışması için gerekebilir, ornek_delete_account.html'de vardı */
+      body {
+        background-color: #e6f4f1; /* Açık yeşil arka plan */
+      }
+      .logo {
+        font-family: "Pacifico", serif; /* Logo için özel font */
+        color: #ff7846; /* Ana turuncu renk */
+      }
+      #successMessageContainer,
+      #errorMessageContainer {
+        text-align: center;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+      }
+      #successMessageContainer {
+        background-color: #d1fae5; /* Yeşilimsi arka plan */
+        color: #065f46; /* Koyu yeşil yazı */
+        border: 1px solid #6ee7b7;
+      }
+      #errorMessageContainer {
+        background-color: #fee2e2; /* Kırmızımsı arka plan */
+        color: #991b1b; /* Koyu kırmızı yazı */
+        border: 1px solid #fca5a5;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <header class="w-full bg-white shadow-sm">
+      <div class="max-w-6xl mx-auto px-4 py-3">
+        <a href="/" class="logo text-2xl">ClimbUp</a>
+      </div>
+    </header>
+    <main class="flex-grow container mx-auto px-4 py-12 max-w-2xl">
+      <div id="deletionFormContainer" class="bg-white rounded-lg shadow-sm p-8">
+        <div class="text-center mb-8">
+          <div
+            class="w-20 h-20 mx-auto bg-red-50 rounded-full flex items-center justify-center mb-4"
+          >
+            <i class="ri-user-unfollow-line text-red-500 ri-2x"></i>
+          </div>
+          <h1 class="text-2xl font-semibold text-gray-800 mb-2">
+            Hesabınızı Silmek İstediğinize Emin misiniz?
+          </h1>
+          <p class="text-gray-600">
+            Bu işlem geri alınamaz ve tüm verileriniz kalıcı olarak
+            silinecektir.
+          </p>
+        </div>
+        <form id="deleteAccountForm" class="space-y-6">
+          <div class="space-y-4">
+            <label class="block text-gray-700 font-medium mb-2"
+              >Hesabınızı silme nedeniniz nedir?</label
+            >
+            <div class="space-y-2">
+              <label class="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  name="deletionReasons"
+                  value="not_useful"
+                  class="text-primary"
+                />
+                <span class="text-gray-700"
+                  >Uygulama benim için faydalı değil</span
+                >
+              </label>
+              <label class="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  name="deletionReasons"
+                  value="too_complex"
+                  class="text-primary"
+                />
+                <span class="text-gray-700">Kullanımı çok karmaşık</span>
+              </label>
+              <label class="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  name="deletionReasons"
+                  value="found_alternative"
+                  class="text-primary"
+                />
+                <span class="text-gray-700"
+                  >Başka bir uygulama kullanıyorum</span
+                >
+              </label>
+              <label class="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  name="deletionReasons"
+                  value="other"
+                  class="text-primary"
+                />
+                <span class="text-gray-700">Diğer</span>
+              </label>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="block text-gray-700 font-medium"
+              >Hangi özellikler eksikti?</label
+            >
+            <div class="flex flex-wrap gap-2">
+              <label
+                class="flex items-center px-4 py-2 rounded-full border border-gray-200 hover:border-gray-300 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  name="missingFeatures"
+                  value="timer_options"
+                  class="mr-2 text-primary"
+                />
+                <span class="text-sm text-gray-700"
+                  >Zamanlayıcı seçenekleri</span
+                >
+              </label>
+              <label
+                class="flex items-center px-4 py-2 rounded-full border border-gray-200 hover:border-gray-300 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  name="missingFeatures"
+                  value="statistics"
+                  class="mr-2 text-primary"
+                />
+                <span class="text-sm text-gray-700">İstatistikler</span>
+              </label>
+              <label
+                class="flex items-center px-4 py-2 rounded-full border border-gray-200 hover:border-gray-300 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  name="missingFeatures"
+                  value="integrations"
+                  class="mr-2 text-primary"
+                />
+                <span class="text-sm text-gray-700">Entegrasyonlar</span>
+              </label>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label for="feedbackText" class="block text-gray-700 font-medium"
+              >Geri bildiriminiz var mı?</label
+            >
+            <textarea
+              id="feedbackText"
+              name="feedbackText"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              placeholder="Deneyiminizi bizimle paylaşın..."
+            ></textarea>
+          </div>
+          <div
+            class="pt-6 border-t border-gray-100 flex items-center justify-between"
+          >
+            <a href="/" class="text-gray-600 hover:text-primary text-sm"
+              >Vazgeç</a
+            >
+            <div class="space-x-3">
+              <button
+                type="button"
+                id="deleteButton"
+                class="px-6 py-2 bg-red-500 text-white rounded-md font-medium hover:bg-red-600 !rounded-button"
+              >
+                Hesabımı Kalıcı Olarak Sil
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div id="successMessageContainer" class="hidden">
+        <h2 class="text-xl font-semibold mb-2">Hesabınız Başarıyla Silindi!</h2>
+        <p class="mb-4">
+          Merhaba
+          <span id="userNameSuccessPlaceholder" class="font-semibold"></span>,
+          ClimbUp'taki yolculuğunuzda bize katıldığınız için teşekkür ederiz.
+          Umarız hedeflerinize ulaşmanızda size yardımcı olabilmişizdir.
+        </p>
+        <p class="font-semibold text-primary">
+          Zirveye tırmanmaya devam et Climber!
+        </p>
+        <p class="mt-4 text-sm text-gray-600">
+          Eğer fikrinizi değiştirirseniz, kapımız size her zaman açık. Bizimle
+          tırmanmaya dilediğiniz zaman devam edebilirsiniz.
+        </p>
+        <p class="mt-6 text-sm text-gray-500">
+          Bu sayfayı şimdi kapatabilirsiniz.
+        </p>
+      </div>
+      <div id="errorMessageContainer" class="hidden">
+        <h2 class="text-xl font-semibold mb-2">Bir Hata Oluştu!</h2>
+        <p id="errorMessageText"></p>
+        <p class="mt-6 text-sm text-gray-500">
+          Bu sayfayı şimdi kapatabilirsiniz.
+        </p>
+      </div>
+    </main>
+    <footer
+      class="w-full bg-white/80 backdrop-blur-sm border-t border-gray-100 py-4 px-6 mt-auto"
+    >
+      <div
+        class="max-w-6xl mx-auto flex flex-wrap justify-between items-center"
+      >
+        <div class="flex items-center space-x-6">
+          <a href="/" class="text-gray-600 hover:text-primary text-sm"
+            >Hakkımızda</a
+          >
+          <a href="#" class="text-gray-600 hover:text-primary text-sm">Blog</a>
+          <a href="#" class="text-gray-600 hover:text-primary text-sm"
+            >İletişim</a
+          >
+          <a href="#" class="text-gray-600 hover:text-primary text-sm"
+            >Yardım</a
+          >
+        </div>
+        <div class="flex items-center my-2 md:my-0">
+          <span class="text-sm text-gray-500"
+            >© 2025 ClimbUp. Tüm hakları saklıdır.</span
+          >
+        </div>
+        <div class="flex items-center space-x-4">
+          <a
+            href="#"
+            class="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary"
+            ><i class="ri-twitter-x-line ri-lg"></i
+          ></a>
+          <a
+            href="#"
+            class="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary"
+            ><i class="ri-instagram-line ri-lg"></i
+          ></a>
+          <a
+            href="#"
+            class="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary"
+            ><i class="ri-linkedin-line ri-lg"></i
+          ></a>
+          <a
+            href="#"
+            class="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary"
+            ><i class="ri-facebook-line ri-lg"></i
+          ></a>
+        </div>
+      </div>
+    </footer>
+
+    <div
+      id="confirmModal"
+      class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+    >
+      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-auto">
+        <div class="text-center mb-6">
+          <div
+            class="w-16 h-16 mx-auto bg-red-50 rounded-full flex items-center justify-center mb-4"
+          >
+            <i class="ri-error-warning-line text-red-500 ri-2x"></i>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-800">Son Onay</h3>
+          <p class="text-gray-600 mt-2">
+            Bu işlem geri alınamaz. Hesabınız ve tüm verileriniz kalıcı olarak
+            silinecektir. Emin misiniz?
+          </p>
+        </div>
+        <div class="flex justify-end space-x-3">
+          <button
+            type="button"
+            id="cancelDelete"
+            class="px-4 py-2 text-gray-600 hover:text-gray-800 !rounded-button"
+          >
+            Vazgeç
+          </button>
+          <button
+            type="button"
+            id="confirmDeleteFinal"
+            class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 !rounded-button"
+          >
+            Evet, Onayla ve Sil
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get("token");
+
+        const deletionFormContainer = document.getElementById(
+          "deletionFormContainer"
+        );
+        const successMessageContainer = document.getElementById(
+          "successMessageContainer"
+        );
+        const errorMessageContainer = document.getElementById(
+          "errorMessageContainer"
+        );
+        const errorMessageText = document.getElementById("errorMessageText");
+
+        const deleteButton = document.getElementById("deleteButton"); // Main form's "Hesabımı Kalıcı Olarak Sil"
+        const confirmModal = document.getElementById("confirmModal");
+        const cancelDelete = document.getElementById("cancelDelete"); // Modal's "Vazgeç"
+        const confirmDeleteFinal =
+          document.getElementById("confirmDeleteFinal"); // Modal's "Evet, Onayla ve Sil"
+        const deleteAccountForm = document.getElementById("deleteAccountForm");
+
+        if (!token) {
+          deletionFormContainer.classList.add("hidden");
+          errorMessageText.textContent =
+            "Geçersiz veya eksik silme bağlantısı. Lütfen e-postanızdaki bağlantıyı kontrol edin veya yeni bir silme talebi başlatın.";
+          errorMessageContainer.classList.remove("hidden");
+          return;
+        }
+
+        deleteButton.addEventListener("click", function () {
+          confirmModal.classList.remove("hidden");
+          confirmModal.classList.add("flex"); // Ensure it's visible with flex
+        });
+
+        cancelDelete.addEventListener("click", function () {
+          confirmModal.classList.add("hidden");
+          confirmModal.classList.remove("flex");
+        });
+
+        confirmDeleteFinal.addEventListener("click", function () {
+          confirmModal.classList.add("hidden");
+          confirmModal.classList.remove("flex");
+
+          const deletionReasons = [];
+          document
+            .querySelectorAll('input[name="deletionReasons"]:checked') // Updated name attribute
+            .forEach((checkbox) => {
+              deletionReasons.push(checkbox.value);
+            });
+          const missingFeatures = [];
+          document
+            .querySelectorAll('input[name="missingFeatures"]:checked')
+            .forEach((checkbox) => {
+              missingFeatures.push(checkbox.value);
+            });
+          const feedbackText = document.getElementById("feedbackText").value;
+
+          const payload = {
+            token: token,
+            deletionReasons: deletionReasons, // Updated to send an array
+            missingFeatures: missingFeatures,
+            feedbackText: feedbackText,
+          };
+
+          // Disable button to prevent multiple submissions
+          confirmDeleteFinal.disabled = true;
+          confirmDeleteFinal.textContent = "İşleniyor...";
+
+          fetch("/api/Users/me/confirm-deletion", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              // Add AntiForgeryToken if your API requires it for POST from non-authenticated pages
+            },
+            body: JSON.stringify(payload),
+          })
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                return response.json().then((err) => Promise.reject(err));
+              }
+            })
+            .then((data) => {
+              deletionFormContainer.classList.add("hidden");
+              const userNamePlaceholder = document.getElementById(
+                "userNameSuccessPlaceholder"
+              );
+              if (userNamePlaceholder && data.userName) {
+                userNamePlaceholder.textContent = data.userName;
+              } else if (userNamePlaceholder) {
+                userNamePlaceholder.textContent = "Climber"; // Fallback if userName is not in response
+              }
+              successMessageContainer.classList.remove("hidden");
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              deletionFormContainer.classList.add("hidden"); // Hide form on error too
+              let displayError =
+                "Hesap silinirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.";
+              if (error && error.message) {
+                displayError = error.message;
+              } else if (error && error.errors) {
+                // Handle IdentityResult style errors if API returns them in a specific format
+                const errorKey = Object.keys(error.errors)[0];
+                if (
+                  errorKey &&
+                  error.errors[errorKey] &&
+                  error.errors[errorKey].length > 0
+                ) {
+                  displayError = error.errors[errorKey][0];
+                }
+              }
+              errorMessageText.textContent = displayError;
+              errorMessageContainer.classList.remove("hidden");
+            })
+            .finally(() => {
+              // Re-enable button if needed, or keep it disabled as the process is final
+              // confirmDeleteFinal.disabled = false;
+              // confirmDeleteFinal.textContent = 'Evet, Onayla ve Sil';
+            });
+        });
+      });
+    </script>
+  </body>
+</html>
