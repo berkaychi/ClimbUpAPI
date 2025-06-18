@@ -4,6 +4,12 @@
 
 ClimbUpAPI is a .NET API designed to support productivity applications by managing tasks (ToDos), focus sessions, user authentication, and more. It provides a robust backend for tracking user activity and enhancing focus.
 
+## Client Applications
+
+This API serves as the backend for the following client applications:
+
+- **ClimbUp iOS App:** The official iOS client for ClimbUp, built with Swift. You can find the repository [here](https://github.com/berkkayarslan/ClimbUpIOS).
+
 ## Getting Started
 
 ### Prerequisites
