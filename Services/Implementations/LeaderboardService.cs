@@ -115,15 +115,16 @@ namespace ClimbUpAPI.Services.Implementations
             var (startDate, endDate) = GetDateRangeForPeriod(queryParameters.Period);
 
             var focusSessionsQuery = _context.FocusSessions
-                .Where(fs => fs.EndTime >= startDate && fs.EndTime < endDate && fs.Status == SessionState.Completed);
+                .Where(fs => fs.EndTime >= startDate && fs.EndTime < endDate &&
+                             (fs.Status == SessionState.Completed || fs.Status == SessionState.Cancelled));
 
             var userPeriodStatsQuery = focusSessionsQuery
                 .GroupBy(fs => fs.UserId)
                 .Select(g => new
                 {
                     UserId = g.Key,
-                    TotalFocusDurationSeconds = queryParameters.SortBy == LeaderboardSortCriteria.TotalFocusDuration ? g.Sum(fs => fs.TotalWorkDuration) : 0,
-                    TotalCompletedSessions = queryParameters.SortBy == LeaderboardSortCriteria.TotalCompletedSessions ? g.Count() : 0
+                    TotalFocusDurationSeconds = g.Sum(fs => fs.TotalWorkDuration),
+                    TotalCompletedSessions = g.Count(fs => fs.Status == SessionState.Completed)
                 });
 
             var queryWithUserDetails = userPeriodStatsQuery
@@ -135,22 +136,17 @@ namespace ClimbUpAPI.Services.Implementations
                           stat.UserId,
                           user.FullName,
                           user.ProfilePictureUrl,
-                          Score = queryParameters.SortBy == LeaderboardSortCriteria.TotalFocusDuration ? stat.TotalFocusDurationSeconds : stat.TotalCompletedSessions
+                          stat.TotalFocusDurationSeconds,
+                          stat.TotalCompletedSessions
                       });
 
+            var orderedQuery = queryParameters.SortBy == LeaderboardSortCriteria.TotalFocusDuration
+                ? queryWithUserDetails.OrderByDescending(s => s.TotalFocusDurationSeconds)
+                : queryWithUserDetails.OrderByDescending(s => s.TotalCompletedSessions);
 
-            if (queryParameters.SortBy == LeaderboardSortCriteria.TotalFocusDuration)
-            {
-                queryWithUserDetails = queryWithUserDetails.OrderByDescending(s => s.Score);
-            }
-            else
-            {
-                queryWithUserDetails = queryWithUserDetails.OrderByDescending(s => s.Score);
-            }
+            var totalEntries = await orderedQuery.CountAsync();
 
-            var totalEntries = await queryWithUserDetails.CountAsync();
-
-            var pagedStats = await queryWithUserDetails
+            var pagedStats = await orderedQuery
                 .Skip((queryParameters.Page - 1) * queryParameters.Limit)
                 .Take(queryParameters.Limit)
                 .ToListAsync();
@@ -161,14 +157,18 @@ namespace ClimbUpAPI.Services.Implementations
             for (int i = 0; i < pagedStats.Count; i++)
             {
                 var stat = pagedStats[i];
+                long score = queryParameters.SortBy == LeaderboardSortCriteria.TotalFocusDuration
+                    ? stat.TotalFocusDurationSeconds
+                    : stat.TotalCompletedSessions;
+
                 entries.Add(new LeaderboardEntryDto
                 {
                     Rank = rankStart + i,
                     UserId = stat.UserId,
                     FullName = stat.FullName ?? "N/A",
                     ProfilePictureUrl = stat.ProfilePictureUrl,
-                    Score = stat.Score,
-                    FormattedScore = FormatScoreForPeriod(stat.Score, queryParameters.SortBy)
+                    Score = score,
+                    FormattedScore = FormatScoreForPeriod(score, queryParameters.SortBy)
                 });
             }
 
@@ -179,18 +179,20 @@ namespace ClimbUpAPI.Services.Implementations
         private (DateTime StartDate, DateTime EndDate) GetDateRangeForPeriod(LeaderboardPeriod period)
         {
             DateTime now = DateTime.UtcNow;
-            DateTime startDate = now;
-            DateTime endDate = now;
+            DateTime startDate;
+            DateTime endDate;
 
             switch (period)
             {
                 case LeaderboardPeriod.CurrentWeek:
                     int diff = (7 + (now.DayOfWeek - DayOfWeek.Monday)) % 7;
-                    startDate = now.AddDays(-1 * diff).Date;
+                    var weekStart = now.AddDays(-1 * diff).Date;
+                    startDate = new DateTime(weekStart.Year, weekStart.Month, weekStart.Day, 0, 0, 0, DateTimeKind.Utc);
                     endDate = startDate.AddDays(7);
                     break;
                 case LeaderboardPeriod.CurrentMonth:
-                    startDate = new DateTime(now.Year, now.Month, 1).Date;
+                    var monthStart = new DateTime(now.Year, now.Month, 1);
+                    startDate = new DateTime(monthStart.Year, monthStart.Month, monthStart.Day, 0, 0, 0, DateTimeKind.Utc);
                     endDate = startDate.AddMonths(1);
                     break;
                 default:
